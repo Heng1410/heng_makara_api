@@ -17,6 +17,11 @@ class OrderService:
     @staticmethod
     @transaction.atomic
     def create_order(customer, items):
+        for item in items:
+            plant = item["plant"]
+
+            if plant.estimated_price is None:
+                raise ValidationError(f"{plant.name} does not have a price.")
         order = Order.objects.create(
             customer=customer,
         )
@@ -78,7 +83,7 @@ class OrderService:
                 plant.save(update_fields=["stock_quantity", "updated_at"])
 
         order.status = ORDER_STATUS_CANCELLED
-        
+
         order.save(update_fields=["status", "updated_at"])
 
         return order

@@ -1,3 +1,5 @@
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -5,6 +7,7 @@ from rest_framework.response import Response
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 
 from orders.models.orders import Order
+from orders.order_filter import OrderFilter
 from orders.serializers.orders_serializer import OrderListSerializer, OrderSerializer
 from orders.services import OrderService
 
@@ -21,6 +24,15 @@ class OrderViewSet(
     permission_classes = [
         IsAuthenticated,
     ]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+
+    filterset_class = OrderFilter
+    ordering_fields = ["created_at", "updated_at", "total"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         if self.request.user.role == "manager":
@@ -55,6 +67,6 @@ class OrderViewSet(
             items=serializer.validated_data["items"],
         )
 
-        response_serializer = self.get_serializer(order)
+        response_serializer = OrderSerializer(order)
 
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
