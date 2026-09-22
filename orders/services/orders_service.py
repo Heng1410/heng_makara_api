@@ -2,6 +2,8 @@ from django.db import transaction
 
 from rest_framework.exceptions import ValidationError
 
+from notifications.constants import NOTIFICATION_TYPE_ORDER_CANCELLED, NOTIFICATION_TYPE_ORDER_CONFIRMED
+from notifications.services.notifications_service import NotificationService
 from orders.constants import (
     ORDER_STATUS_CANCELLED,
     ORDER_STATUS_COMPLETED,
@@ -63,6 +65,13 @@ class OrderService:
             update_fields=["status", "updated_at"],
         )
 
+        NotificationService.create_notification(
+            recipient=order.customer,
+            title="Order Confirmed",
+            message=f"Your Order #{order.id} has been confirmed.",
+            notification_type=NOTIFICATION_TYPE_ORDER_CONFIRMED,
+        )
+
         return order
 
     @staticmethod
@@ -85,6 +94,13 @@ class OrderService:
         order.status = ORDER_STATUS_CANCELLED
 
         order.save(update_fields=["status", "updated_at"])
+
+        NotificationService.create_notification(
+            recipient=order.customer,
+            title="Order Cancelled",
+            message=f"Your Order #{order.id} has been cancelled.",
+            notification_type=NOTIFICATION_TYPE_ORDER_CANCELLED,
+        )
 
         return order
 

@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
+from notifications.services.notifications_service import NotificationService
 from orders.constants import ORDER_STATUS_CONFIRMED, ORDER_STATUS_PENDING
 from payments.constants import (
     PAYMENT_STATUS_FAILED,
@@ -56,6 +57,13 @@ class PaymentService:
         if order.status == ORDER_STATUS_PENDING:
             order.status = ORDER_STATUS_CONFIRMED
             order.save(update_fields=["status", "updated_at"])
+
+        NotificationService.create_notification(
+            recipient=order.customer,
+            title="Payment Successful",
+            message=f"Your payment for Order #{order.id} was successful.",
+            notification_type="payment_paid",
+        )
 
         return payment
 
