@@ -23,10 +23,16 @@ class StockMovementSerializer(serializers.ModelSerializer):
 
 
 class StockMovementListSerializer(StockMovementSerializer):
+    inventory_plant_name = serializers.CharField(
+        source="inventory.plant.name",
+        read_only=True,
+    )
+
     class Meta(StockMovementSerializer.Meta):
         fields = [
             "id",
             "inventory",
+            "inventory_plant_name",
             "quantity",
             "movement_type",
             "reference_type",

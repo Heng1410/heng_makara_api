@@ -81,3 +81,45 @@ class InventoryService:
         )
 
         return inventory, movement
+
+    @staticmethod
+    @transaction.atomic
+    def adjust_stock(
+        inventory_id,
+        quantity,
+        reason,
+        reference_type="",
+        reference_id="",
+    ):
+        inventory = Inventory.objects.select_for_update().get(id=inventory_id)
+
+        if quantity == 0:
+            raise BadRequestException("Adjustment quantity cannot be zero.")
+
+        quantity_before = inventory.quantity
+        quantity_after = quantity_before + quantity
+
+        if quantity_after < 0:
+            raise BadRequestException("Adjustment would result in negative stock.")
+
+        inventory.quantity = quantity_after
+
+        inventory.save(update_fields=["quantity", "updated_at"])
+
+        movement = StockMovement.objects.create(
+            inventory=inventory,
+            quantity_before=quantity_before,
+            quantity=quantity,
+            quantity_after=quantity_after,
+            movement_type=StockMovementType.ADJUSTMENT,
+            reference_type=reference_type,
+            reference_id=reference_id,
+            reason=reason,
+        )
+        
+        LowStockService.check_and_notify(
+            inventory=inventory,
+            quantity_before=quantity_before,
+        )
+
+        return inventory, movement

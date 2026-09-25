@@ -21,3 +21,13 @@ class StockMovementType:
         EXPIRED,
         ADJUSTMENT,
     )
+
+    STOCK_MOVEMENT_RESTOCK = "restock"
+    STOCK_MOVEMENT_SALE = "sale"
+    STOCK_MOVEMENT_ADJUSTMENT = "adjustment"
+
+    STOCK_MOVEMENT_TYPES = (
+        (STOCK_MOVEMENT_RESTOCK, "Restock"),
+        (STOCK_MOVEMENT_SALE, "Sale"),
+        (STOCK_MOVEMENT_ADJUSTMENT, "Adjustment"),
+    )
