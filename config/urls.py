@@ -8,6 +8,7 @@ from drf_spectacular.views import (
 
 
 urlpatterns = [
+    path("api/v1/inventory/", include("inventory.urls")),
     path("api/v1/reports/", include("reports.urls")),
     path("api/v1/notifications/", include("notifications.urls")),
     path("api/v1/payments/", include("payments.urls")),

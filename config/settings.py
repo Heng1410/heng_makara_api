@@ -41,6 +41,7 @@ ALLOWED_HOSTS = []
 # =============================================================================
 
 LOCAL_APPS = [
+    "inventory",
     "reports",
     "notifications",
     "payments",

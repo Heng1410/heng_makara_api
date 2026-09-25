@@ -4,7 +4,6 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
 
 from plants.filters import PlantFilter
 from plants.models.plants import Plant
@@ -14,6 +13,7 @@ from plants.serializers.plants_serializer import (
     PlantListSerializer,
     PlantSerializer,
 )
+from plants.services.plants_service import PlantsService
 
 
 class PlantViewSet(viewsets.ModelViewSet):
@@ -41,6 +41,9 @@ class PlantViewSet(viewsets.ModelViewSet):
     ordering = [
         "-created_at",
     ]
+
+    def perform_create(self, serializer):
+        PlantsService.create(**serializer.validated_data)
 
     def get_serializer_class(self):
         if self.action == "list":

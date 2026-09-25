@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 
 from notifications.services.notifications_service import NotificationService
 from orders.constants import ORDER_STATUS_CONFIRMED, ORDER_STATUS_PENDING
+from orders.services.order_inventory_service import OrderInventoryService
 from payments.constants import (
     PAYMENT_STATUS_FAILED,
     PAYMENT_STATUS_PAID,
@@ -46,6 +47,10 @@ class PaymentService:
     def mark_as_paid(payment):
         if payment.status != PAYMENT_STATUS_PENDING:
             raise ValidationError("Only pending payments can be marked as paid.")
+        
+        order = payment.order
+        
+        OrderInventoryService.deduct_for_order(order)
 
         payment.status = PAYMENT_STATUS_PAID
         payment.paid_at = timezone.now()
